@@ -1,8 +1,7 @@
 import random
-from .magic import Spell
-import pprint
 
 
+# UI Colors
 class BColors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -14,6 +13,7 @@ class BColors:
     UNDERLINE = '\033[4m'
 
 
+# Blueprint of all the players and the enemy
 class Person:
     def __init__(self, name, hp, mp, atk, df, magic, items):
         self.hp = hp
@@ -29,20 +29,24 @@ class Person:
         self.items = items
         self.name = name
 
+    # Generate random damage in specified range
     def generate_damage(self):
         return random.randrange(self.atkl, self.atkh)
 
+    # Generate random damage for specified magic weapon
     def generate_spell_damage(self, i):
         mgl = self.magic[i]["damage"] - 5
         mgh = self.magic[i]["damage"] + 5
         return random.randrange(mgl, mgh)
 
+    # Take enemy damage
     def take_damage(self, dmg):
         self.hp = self.hp - dmg
         if self.hp < 0:
             self.hp = 0
         return self.hp
 
+    # Used to restore Health points
     def heal(self, dmg):
         self.hp += dmg
         if self.hp > self.maxhp:
@@ -62,12 +66,6 @@ class Person:
 
     def reduce_mp(self, cost):
         self.mp -= cost
-
-    # def get_spell_name(self, i):
-    #     return self.magic[i]["name"]
-    #
-    # def get_spell_mp_cost(self, i):
-    #     return self.magic[i]["cost"]
 
     def choose_actions(self):
         i = 1
@@ -91,9 +89,82 @@ class Person:
             print("        ", str(i) + ".", item["item"].name, ":", item["item"].desc, "(x " + str(item["quantity"]) + ")")
             i+=1
 
-    def get_stats(self):
-        print("                  _________________________            __________")
+    def get_enemy_stats(self):
+        hp_bar = ""
+        bar_ticks = (self.hp / self.maxhp) * 100 / 2
+
+        while bar_ticks > 0:
+            hp_bar += '▌'
+            bar_ticks -= 1
+
+        while len(hp_bar) < 50:
+            hp_bar += ' '
+
+        hp_string = str(self.hp) + '/' + str(self.maxhp)
+        current_hp = ""
+
+        if len(hp_string) < 11:
+            decreased = 11 - len(hp_string)
+
+            while decreased > 0:
+                current_hp += " "
+                decreased -= 1
+
+            current_hp += hp_string
+        else:
+            current_hp = hp_string
+
+        print("                       ___________________________________________")
         print(BColors.BOLD + self.name + ":    "
-              + str(self.hp) + '/' + str(self.mp) + " " + BColors.OKGREEN + "|████████████████|"
-              + BColors.ENDC + BColors.BOLD + "    " + str(self.mp) + '/' + str(self.maxmp) + " "
-              + BColors.OKBLUE + BColors.BOLD + "|██████|" + BColors.ENDC + BColors.BOLD)
+              + current_hp + " |" + BColors.FAIL + hp_bar
+              + BColors.ENDC + '|')
+
+
+    def get_stats(self):
+        hp_bar = ""
+        bar_ticks = (self.hp / self.maxhp) * (100 / 4)
+        mp_bar = ""
+        mp_ticks = (self.mp / self.maxmp) * (100 / 10)
+
+        while (bar_ticks > 0):
+            hp_bar += '▌'
+            bar_ticks -= 1
+
+        while len(hp_bar) < 25:
+            hp_bar += " "
+
+        while (mp_ticks > 0):
+            mp_bar += '▌'
+            mp_ticks -= 1
+
+        while len(mp_bar) < 10:
+            mp_bar += " "
+
+        hp_string = str(self.hp) + "/" + str(self.maxhp)
+        current_hp = ""
+        if len(hp_string) < 9:
+            decreased = 9 - len(hp_string)
+
+            while decreased > 0:
+                current_hp += " "
+                decreased -= 1
+
+            current_hp += hp_string
+        else:
+            current_hp = hp_string
+
+        mp_string = str(self.mp) + "/" + str(self.maxmp)
+        current_mp = ""
+        if len(mp_string) < 7:
+            decreased = 7 - len(mp_string)
+            while decreased > 0:
+                current_mp += " "
+                decreased -= 1
+
+        current_mp += mp_string
+
+        print("                    _____________________            _________")
+        print(BColors.BOLD + self.name + ":    "
+              + current_hp + " " + BColors.OKGREEN + hp_bar
+              + BColors.ENDC + BColors.BOLD + "    " + current_mp + " "
+              + BColors.OKBLUE + mp_bar + BColors.BOLD + BColors.ENDC)

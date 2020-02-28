@@ -6,4 +6,4 @@ Interactive RPG Battle Game script
 
 ![Picture](res_basic.png)
 
-#### Yep! Play yourself and see. OVER.
+#### Thank You. OVER.
